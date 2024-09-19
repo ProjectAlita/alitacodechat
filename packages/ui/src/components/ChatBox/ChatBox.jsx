@@ -3,7 +3,7 @@
 import { ROLES, sioEvents, SocketMessageType, ChatTypes, ToolActionStatus } from '@/common/constants';
 import { VsCodeMessageTypes } from 'shared';
 import { buildErrorMessage } from '@/common/utils';
-import { forwardRef, useCallback, useContext, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import { forwardRef, useCallback, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import AlertDialog from '../AlertDialog';
 import Toast from '../Toast';
 import AIAnswer from './AIAnswer';
@@ -11,7 +11,6 @@ import ChatInput from './ChatInput';
 import {
   ActionButton,
   ActionContainer,
-  ChatBodyContainer,
   ChatBoxContainer,
   MessageList
 } from './StyledComponents';
@@ -24,7 +23,6 @@ import ActionButtons from './ActionButtons';
 import { useStopStreaming } from './hooks';
 import ClearIcon from '../Icons/ClearIcon';
 import DataContext from '@/context/DataContext';
-import SocketContext from '@/context/SocketContext';
 import ApplicationAnswer from './ApplicationAnswer';
 
 const USE_STREAM = true
@@ -302,7 +300,7 @@ const ChatBox = forwardRef(({
   }, [getMessage, handleError, scrollToMessageListEnd, setChatHistory])
 
   const dataContext = useContext(DataContext);
-  const { emit, resetSocket } = useSocket(
+  const { emit } = useSocket(
     chatWith === ChatTypes.datasource ?
       sioEvents.datasource_predict :
       chatWith === ChatTypes.application ?
@@ -502,10 +500,7 @@ const ChatBox = forwardRef(({
             <ActionButtons
               isStreaming={isStreaming}
               onStopAll={onStopAll}
-              onRefresh={() => {
-                resetSocket();
-                loadCoreData();
-              }}
+              onRefresh={loadCoreData}
             />
             <ActionButton
               aria-label="clear the chat"

@@ -35,24 +35,21 @@ export function SocketProvider({ children }) {
     return socketIo
   }, [providerConfig]);
 
-  const resetSocket = () => {
-    console.log("resetting socket");
-    socket.disconnect();
-
-    const socketIo = createSocket();
-    setSocket(socketIo);
-  };
-
   useEffect(() => {
     console.log('create socket with providerConfig', providerConfig)
-    if (!providerConfig || socket) return;
-    const socketIo = createSocket()
-    setSocket(socketIo)
 
-    return () => {
-      socketIo && socketIo.disconnect();
-    };
-  }, [createSocket, socket, providerConfig]);
+    if (providerConfig) {
+      const socketIo = createSocket()
+      setSocket(socketIo)
+
+      return () => {
+        if (socketIo) {
+          console.log('disconnect socket')
+          socketIo.disconnect()
+        }
+      };
+    }
+  }, [createSocket, providerConfig]);
 
   return (
     <SocketContext.Provider
@@ -60,7 +57,6 @@ export function SocketProvider({ children }) {
         socket,
         createSocket,
         connected,
-        resetSocket,
       }}
     >
       {children}
