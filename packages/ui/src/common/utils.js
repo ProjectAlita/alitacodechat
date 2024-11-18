@@ -59,3 +59,17 @@ export const buildErrorMessage = (err) => {
 };
 
 export const removeTrailingSlashes = str => str.replace(/\/*$/, "");
+
+export const convertJsonToString = (content) => {
+  let result = content;
+  if (typeof content !== 'string') {
+    try {
+      result = JSON.stringify(content, null, 2);
+    } catch (_) {
+      result = '' + content;
+    }
+  }
+  
+  // FIXME substring is workaround to handle huge messages from platform
+  return result.substring(0, 1000);
+}

@@ -1,0 +1,46 @@
+name: Build and publish testing artifacts
+on: 
+  workflow_dispatch:
+    inputs:
+      APPEND_NAME:
+        description: 'Optional part to append to version name. If it is provided, it must contain only [0-9A-Za-z-].'
+        type: string
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    env:
+      ARTIFACTS_NAME: ${{github.event.repository.name}}-artifacts
+    steps:
+      - name: Input arguments
+        run: echo "APPEND_NAME=${{inputs.APPEND_NAME}}'"
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.20.2
+          cache: npm
+      - name: Install top level dependencies
+        run: npm i
+      - run: echo "NEW_VERSION=$(npm pkg get version | tr -d \")-${{inputs.APPEND_NAME}}-${GITHUB_SHA::7}" >> $GITHUB_ENV
+      - run: mkdir -p $ARTIFACTS_NAME
+      - name: Build browser version of chat (webpack)
+        run: |
+          cd packages/ui
+          npx webpack
+          cp dist-webpack/index.html ../../$ARTIFACTS_NAME/index-$NEW_VERSION.html
+          cp dist-webpack/main.js ../../$ARTIFACTS_NAME/main-$NEW_VERSION.js
+      - run: npm run vsce -- --out $ARTIFACTS_NAME --no-git-tag-version $NEW_VERSION
+      - run: |
+          cd $ARTIFACTS_NAME
+          npm init --init-version $NEW_VERSION --yes
+          npm pack
+          ls
+      - name: Archive ${{env.ARTIFACTS_NAME}}-${{env.NEW_VERSION}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{env.ARTIFACTS_NAME}}-${{env.NEW_VERSION}}
+          path: ${{env.ARTIFACTS_NAME}}
+          if-no-files-found: error
+          retention-days: 15

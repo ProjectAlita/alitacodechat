@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 import { ROLES, sioEvents, SocketMessageType, ChatTypes, ToolActionStatus } from '@/common/constants';
 import { VsCodeMessageTypes } from 'shared';
-import { buildErrorMessage } from '@/common/utils';
+import { buildErrorMessage, convertJsonToString } from '@/common/utils';
 import { forwardRef, useCallback, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import AlertDialog from '../AlertDialog';
 import AIAnswer from './AIAnswer';
@@ -266,7 +266,7 @@ const ChatBox = forwardRef(({
         t = msg.toolActions.find(i => i.id === message?.response_metadata?.tool_run_id)
         if (t) {
           Object.assign(t, {
-            content: message?.content,
+            content: convertJsonToString(message?.content ?? ''),
             status: ToolActionStatus.complete
           })
         }
