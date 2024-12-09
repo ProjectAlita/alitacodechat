@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, {useState, useCallback} from 'react';
 import { Box, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import Markdown from '../Markdown';
@@ -14,6 +14,7 @@ import { useTheme } from '@emotion/react';
 import ToolAction from './ToolAction';
 import { formatDistanceToNow } from 'date-fns';
 import AgentException from './AgentException';
+import useMonitorOnCopyEvent from "@/components/ChatBox/useMonitorOnCopyEvent.js";
 
 
 const ApplicationAnswer = React.forwardRef((props, ref) => {
@@ -32,7 +33,8 @@ const ApplicationAnswer = React.forwardRef((props, ref) => {
     isStreaming,
     onStop,
     participant,
-    exception
+    exception,
+    interaction_uuid,
   } = props
   const [showActions, setShowActions] = useState(false);
   const onMouseEnter = useCallback(
@@ -49,9 +51,14 @@ const ApplicationAnswer = React.forwardRef((props, ref) => {
     },
     [],
   )
+  const { onMonitorCopy, onClickCopy } = useMonitorOnCopyEvent({ interaction_uuid, onCopy })
 
   return (
-    <UserMessageContainer sx={{ flexDirection: 'column', gap: '8px', padding: '12px 0px 12px 0px', background: 'transparent' }} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+    <UserMessageContainer
+      onCopy={onMonitorCopy}
+      sx={{ flexDirection: 'column', gap: '8px', padding: '12px 0px 12px 0px', background: 'transparent' }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}>
       <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '0px 4px 0px 4px' }}>
         <Box
           sx={{
@@ -120,7 +127,7 @@ const ApplicationAnswer = React.forwardRef((props, ref) => {
             }
             {
               onCopy && !!answer && <StyledTooltip title={'Copy to clipboard'} placement="top">
-                <IconButton onClick={onCopy}>
+                <IconButton onClick={onClickCopy}>
                   <CopyIcon sx={{ fontSize: '1.13rem' }} />
                 </IconButton>
               </StyledTooltip>
@@ -144,7 +151,7 @@ const ApplicationAnswer = React.forwardRef((props, ref) => {
               </StyledTooltip>
             }
           </ButtonsContainer>}
-          <Markdown>
+          <Markdown interaction_uuid={interaction_uuid}>
             {!exception ? answer : 'Agent exception!'}
           </Markdown>
           {isLoading && <AnimatedProgress

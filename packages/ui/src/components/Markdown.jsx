@@ -9,6 +9,7 @@ import { useCallback, useContext } from 'react';
 import DataContext from '@/context/DataContext';
 import { VsCodeMessageTypes } from 'shared';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import useMonitorOnCopyEvent from "@/components/ChatBox/useMonitorOnCopyEvent.js";
 
 const MarkdownMapping = {
   h1: {
@@ -69,12 +70,13 @@ const StyledDiv = styled('div')(() => `
   background: transparent;
 `);
 
-const Markdown = ({ children }) => {
+const Markdown = ({ children, interaction_uuid }) => {
   const theme = useTheme();
   const markedTokens = marked.lexer(children || '')
   const {
     postMessageToVsCode,
   } = useContext(DataContext);
+  const { onMonitorCopy } = useMonitorOnCopyEvent({ interaction_uuid })
   const onCopyToEditor = useCallback(
     (code, language) => () => {
       postMessageToVsCode && postMessageToVsCode({
@@ -84,8 +86,9 @@ const Markdown = ({ children }) => {
           language,
         }
       });
+      onMonitorCopy(null, 'button_copy');
     },
-    [postMessageToVsCode],
+    [postMessageToVsCode, onMonitorCopy],
   )
 
   return markedTokens.map(
