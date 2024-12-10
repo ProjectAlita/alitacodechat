@@ -21,6 +21,7 @@ import ConsoleIcon from '@/components/Icons/ConsoleIcon';
 import DatabaseIcon from '@/components/Icons/DatabaseIcon';
 import ModelIcon from '@/components/Icons/ModelIcon';
 import { formatDistanceToNow } from 'date-fns';
+import useMonitorOnCopyEvent from "@/components/ChatBox/useMonitorOnCopyEvent.js";
 
 export const getIcon = (type, isActive, theme, showBigIcon = false) => {
   switch (type) {
@@ -116,6 +117,7 @@ const AIAnswer = React.forwardRef((props, ref) => {
     onStop,
     participant,
     created_at,
+    interaction_uuid,
   } = props
   const theme = useTheme();
   const [showActions, setShowActions] = useState(false);
@@ -133,9 +135,11 @@ const AIAnswer = React.forwardRef((props, ref) => {
     },
     [],
   )
+  const { onMonitorCopy, onClickCopy } = useMonitorOnCopyEvent({ interaction_uuid, onCopy })
 
   return (
     <AIAnswerContainer
+      onCopy={onMonitorCopy}
       sx={{ flexDirection: 'column', gap: '8px', padding: '12px 0px 12px 0px', background: 'transparent' }}
       ref={ref}
       onMouseEnter={onMouseEnter}
@@ -181,7 +185,7 @@ const AIAnswer = React.forwardRef((props, ref) => {
           }
           {
             onCopy && <StyledTooltip title={'Copy to clipboard'} placement="top">
-              <IconButton onClick={onCopy}>
+              <IconButton onClick={onClickCopy}>
                 <CopyIcon sx={{ fontSize: '1.13rem' }} />
               </IconButton>
             </StyledTooltip>
@@ -213,7 +217,7 @@ const AIAnswer = React.forwardRef((props, ref) => {
             </StyledTooltip>
           }
         </ButtonsContainer>}
-        <Markdown>
+        <Markdown interaction_uuid={interaction_uuid}>
           {answer}
         </Markdown>
         {isLoading && <AnimatedProgress

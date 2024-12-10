@@ -24,6 +24,7 @@ import ClearIcon from '../Icons/ClearIcon';
 import DataContext from '@/context/DataContext';
 import ApplicationAnswer from './ApplicationAnswer';
 import useToast from "@/components/useToast.jsx";
+import { useInteractionUUID } from "@/components/ChatBox/useMonitorOnCopyEvent.js";
 
 const USE_STREAM = true
 const MESSAGE_REFERENCE_ROLE = 'reference'
@@ -140,7 +141,7 @@ const generatePayload = ({
 })
 
 const generateChatPayload = ({
-  projectId, prompt_id, question, messages, variables, chatHistory, name, currentVersionId, model_settings
+  projectId, prompt_id, question, messages, variables, chatHistory, name, currentVersionId, model_settings, interaction_uuid
 }) => {
   const payload = generatePayload({
     projectId, prompt_id, type: 'chat', variables, name, currentVersionId, model_settings
@@ -157,6 +158,7 @@ const generateChatPayload = ({
   if (messages) {
     payload.messages = messages
   }
+  payload.interaction_uuid = interaction_uuid;
   return payload
 }
 
@@ -166,7 +168,7 @@ const ChatBox = forwardRef(({
   const {
     ToastComponent,
     toastError,
-    toastSuccess
+    toastInfo,
   } = useToast();
   const {
     isLoading,
@@ -183,15 +185,17 @@ const ChatBox = forwardRef(({
 
   const [isRegenerating, setIsRegenerating] = useState(false);
   const chatHistoryRef = useRef(chatHistory);
-  const [chatWith, setChatWith] = useState('')
-  const [participant, setParticipant] = useState(null)
-  const participantRef = useRef(participant)
+  const [chatWith, setChatWith] = useState('');
+  const [participant, setParticipant] = useState(null);
+  const participantRef = useRef(participant);
+  const chatWithRef = useRef(chatWith);
+  
+  const { interaction_uuid } = useInteractionUUID();
 
   useEffect(() => {
     participantRef.current = participant
   }, [participant])
 
-  const chatWithRef = useRef(chatWith)
 
   useEffect(() => {
     chatWithRef.current = chatWith
@@ -464,6 +468,7 @@ const ChatBox = forwardRef(({
         question,
         name,
         chatHistory,
+        interaction_uuid
       })
 
       emit(payload)
@@ -481,7 +486,8 @@ const ChatBox = forwardRef(({
         chat_history: chatHistory.filter(i => i.role !== MESSAGE_REFERENCE_ROLE).concat(messages),
         context: data.context,
         chat_settings_ai: data.chat_settings_ai,
-        chat_settings_embedding: data.chat_settings_embedding
+        chat_settings_embedding: data.chat_settings_embedding,
+        interaction_uuid
       })
       return
     } else {
@@ -490,7 +496,8 @@ const ChatBox = forwardRef(({
         question,
         chatHistory,
         name,
-        messages
+        messages,
+        interaction_uuid
       }
       if (data.prompt_id && data.currentVersionId) {
         payloadData.prompt_id = data.prompt_id
@@ -516,7 +523,7 @@ const ChatBox = forwardRef(({
       emit(payload)
     }
   },
-    [scrollToMessageListEnd, dataContext, setChatHistory, emit, chatHistory, deployments, error, toastError])
+    [scrollToMessageListEnd, dataContext, setChatHistory, emit, chatHistory, deployments, error, toastError, interaction_uuid])
 
   const onSend = useCallback(
     (data) => {
@@ -552,11 +559,20 @@ const ChatBox = forwardRef(({
     (id) => async () => {
       const message = chatHistory.find(item => item.id === id);
       if (message) {
-        await navigator.clipboard.writeText(message.content);
-        toastSuccess('The message has been copied to the clipboard');
+        if (message.exception) {
+          try {
+            await navigator.clipboard.writeText(JSON.stringify(message.exception));
+            toastInfo('The exception has been copied to the clipboard');
+          } catch (e) {
+            toastError('Failed to copy the exception!');
+          }
+        } else {
+          await navigator.clipboard.writeText(message.content);
+          toastInfo('The message has been copied to the clipboard');
+        }
       }
     },
-    [chatHistory, toastSuccess],
+    [chatHistory, toastInfo, toastError],
   );
 
   return (
@@ -610,6 +626,7 @@ const ChatBox = forwardRef(({
                     isLoading={Boolean(message.isLoading)}
                     isStreaming={message.isStreaming}
                     created_at={message.created_at}
+                    interaction_uuid={interaction_uuid}
                   />
                   :
                   <ApplicationAnswer
@@ -627,6 +644,7 @@ const ChatBox = forwardRef(({
                     isLoading={Boolean(message.isLoading)}
                     isStreaming={message.isStreaming}
                     created_at={message.created_at}
+                    interaction_uuid={interaction_uuid}
                   />
             })
           }
