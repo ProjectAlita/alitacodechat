@@ -14,7 +14,8 @@ export function SocketProvider({ children }) {
     if (!providerConfig || !providerConfig.socketHost) return;
     const { socketHost, socketPath, token } = providerConfig
 
-    const socketIo = io(socketHost, {
+    const socketIo = io(socketHost.replace('ws://', 'http://').replace('wss://', 'https://'), {
+      transports: ["polling"],
       path: socketPath,
       reconnectionDelayMax: 2000,
       extraHeaders: {'Authorization': `Bearer ${token}`}
@@ -28,7 +29,7 @@ export function SocketProvider({ children }) {
     socketIo?.on("connect_error", (err) => {
       console.log(`Connection error due to ${err}`);
       setConnected(socketIo.connected)
-      setError(`Socket connection error: ${err.message}`)
+      setError(`Socket connection error: ${err}`)
     });
     socketIo?.on('disconnect', () => {
       console.log('needs reconnecting', socketIo)
