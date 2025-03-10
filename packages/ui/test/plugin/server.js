@@ -89,6 +89,13 @@ app.get('/', async (req, res) => {
             case 'extension.copyCodeToEditor':
                 data = '';
                 break;
+            case 'extension.error':
+              // for (const dataKey in chatData) {
+              //   console.log(dataKey + " --- " + chatData[dataKey]); 
+              // }
+              console.log("==============", chatData)
+              data = '';
+              break;
             default:
                 data = `unexpected type of message: ${type}`;
                 break;

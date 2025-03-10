@@ -176,7 +176,9 @@ const ChatBox = forwardRef(({
     chatHistory = [],
     setChatHistory = () => { },
     loadCoreData,
-    deployments
+    deployments,
+    providerConfig,
+    modelSettings
   } = useContext(DataContext);
   const chatInput = useRef(null);
   const listRefs = useRef([]);
@@ -586,6 +588,8 @@ const ChatBox = forwardRef(({
               isStreaming={isStreaming}
               onStopAll={onStopAll}
               onRefresh={loadCoreData}
+              providerConfig={providerConfig ?? {}}
+              modelSettings={modelSettings}
             />
             <ActionButton
               data-testid="ClearTheChatButton"

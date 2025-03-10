@@ -3,6 +3,7 @@ import { ROLES } from '@/common/constants.js';
 import { createContext, useCallback, useEffect, useRef, useState } from 'react';
 import { UiMessageTypes, VsCodeMessageTypes } from 'shared';
 import {removeTrailingSlashes} from "@/common/utils.js";
+import io from "socket.io-client";
 
 const DataContext = createContext(undefined);
 
@@ -166,7 +167,7 @@ export const DataProvider = ({ children }) => {
             const socketPathSrc = "/" + message.data.path.split('/').filter(segment => segment.length > 0).join('/');
             //full url from input data
             const urlSrcObj = new URL(socketHostSrc.concat(socketPathSrc));
-            const socketHost = urlSrcObj.origin;
+            const socketHost = urlSrcObj.origin.replace("ws", "http");
             const socketPath = urlSrcObj.pathname;
             urlSrcObj.protocol = urlSrcObj.protocol.replace("ws", "http");
             urlSrcObj.pathname = urlSrcObj.pathname.replace("/socket.io", "");
@@ -175,7 +176,7 @@ export const DataProvider = ({ children }) => {
             const projectId = message.data.projectId;
             const token = message.data.token;
             
-            setProviderConfig({url, apiUrl, socketHost, socketPath, projectId, token});
+            setProviderConfig({url, apiUrl, socketHost, socketPath, projectId, token, ioConfig: JSON.parse(message.data.ioConfig || "{ \"transports\": [ \"DDDDDDDDDDDDDDD\" ] }")});
           }
           break;
         case UiMessageTypes.getModelSettings:

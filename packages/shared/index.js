@@ -13,6 +13,7 @@ export const VsCodeMessageTypes = {
   copyCodeToEditor: 'extension.copyCodeToEditor',
   stopDatasourceTask: 'extension.stopDatasourceTask',
   stopApplicationTask: 'extension.stopApplicationTask',
+  error: 'extension.error',
 }
 
 export const UiMessageTypes = {
