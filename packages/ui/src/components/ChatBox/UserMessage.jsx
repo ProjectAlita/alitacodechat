@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Box, Typography } from '@mui/material';
 import ListItem from '@mui/material/ListItem';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
-import { styled, useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 import { formatDistanceToNow } from 'date-fns';
 
 // import { useSelector } from 'react-redux';

@@ -5,7 +5,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import TextField from '@mui/material/TextField';
-import { styled } from '@mui/material/styles';
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 
@@ -21,9 +20,10 @@ export const StyledUnfoldMoreIcon = styled(UnfoldMoreIcon)(({ theme }) => ({
 
 export const ChatBoxContainer = styled(Box)(() => ({
   width: '100%',
-  height: '100%',
   display: 'flex',
+  flex: 1,
   flexDirection: 'column',
+  paddingBottom: '1rem',
 }));
 
 export const StyledButton = styled(Button)(({ first, selected, theme }) => (`
@@ -48,30 +48,25 @@ export const ActionContainer = styled(Box)(() => ({
   flex: '0 0 auto',
 }));
 
-export const ActionButton = styled(IconButton)(({ theme }) => (`
-  height: 28px; 
-  width: 28px;
-  display: flex;
+export const ActionButton = styled(IconButton)(() => (`
   padding: 0.375rem;
   align-items: center;
   gap: 0.25rem;
-  border-radius: 1.75rem;
-  background: ${theme.palette.background.icon.default};
 `));
 
 export const ToggleButton = styled(IconButton,
   filterProps('isAutoScroll'))(({ theme, isAutoScroll }) => ({
-    width: '28px',
-    height: '28px',
+  width: '28px',
+  height: '28px',
+  background: isAutoScroll ?
+    theme.palette.background.categoriesButton.selected.active :
+    theme.palette.background.icon.default,
+  '&:hover': {
     background: isAutoScroll ?
-      theme.palette.background.categoriesButton.selected.active :
-      theme.palette.background.icon.default,
-    '&:hover': {
-      background: isAutoScroll ?
-        theme.palette.background.categoriesButton.selected.hover :
-        undefined
-    }
-  }));
+      theme.palette.background.categoriesButton.selected.hover :
+      undefined
+  }
+}));
 
 export const RunButton = styled(Button)(({ theme }) => (`
   display: flex;
@@ -96,17 +91,20 @@ export const RunButton = styled(Button)(({ theme }) => (`
 
 `));
 
-export const ChatBodyContainer = styled(Box)(() => `
+export const ChatBodyContainer = styled(Box)(({ theme }) => `
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   flex: 1 0 0;
   flex-grow: 1;
   align-self: stretch;
+
   position: relative;
+
+  border-radius: 0.5rem;
+  border: 1px solid ${theme.palette.border.lines};
+  background: ${theme.palette.background.alitaDefault};
 `);
-// border-radius: 0.5rem;
-// border: 1px solid ${theme.palette.border.activeBG};
 
 export const ParticipantContainer = styled(Box)(({ theme }) => ({
   padding: '8px 12px' ,
@@ -175,7 +173,8 @@ export const StyledCircleProgress = styled(CircularProgress)(() => `
 
 export const MessageList = styled(List)(() => `
   width: 100%;
-  flex: 1 1 auto;
+  flex-grow: 1;
+  height: 20.25rem;
   padding: 0.75rem;
   overflow: scroll;
   scrollbar-width: none;

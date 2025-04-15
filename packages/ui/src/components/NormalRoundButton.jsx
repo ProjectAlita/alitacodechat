@@ -1,7 +1,6 @@
-import styled from "@emotion/styled";
-import Button from '@/components/Button';
+import {Button} from "@mui/material";
 
-const NormalRoundButton = styled(Button)(({ theme }) => ({
+const NormalRoundButton = styled(Button())(({ theme }) => ({
   height: '28px',
   background: theme.palette.background.button.normal,
   '&.Mui-disabled': {

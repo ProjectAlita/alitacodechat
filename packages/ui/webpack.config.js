@@ -66,7 +66,10 @@ export default (env, argv) => {
         // import.meta.env is required to support built-in Vite configurations
         "import.meta.env": {},
         "import.meta.env.ALTERNATIVE_HOST": JSON.stringify(env.plugin || "http://calltoide.com"),
-      })
+      }),
+      new webpack.ProvidePlugin({
+        "styled": ['@mui/material/styles', 'styled'],
+      }),
     ],
     devServer: {
       static: {

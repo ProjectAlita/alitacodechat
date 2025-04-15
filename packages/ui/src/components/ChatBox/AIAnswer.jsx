@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Box, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
-import { styled, useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 import Markdown, {MarkdownProvider} from '../Markdown';
 import CopyIcon from '../Icons/CopyIcon';
 import DeleteIcon from '../Icons/DeleteIcon';

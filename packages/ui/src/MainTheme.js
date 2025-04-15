@@ -1,56 +1,17 @@
-import { CENTERED_CONTENT_BREAKPOINT } from '@/common/constants'
-
-const deepGrey = '#1a1f28';
-const primaryDefault = '#6ae8fa';
-const white = '#FFFFFF'
-const white5 = 'rgba(255, 255, 255, 0.05)';
-const white10 = 'rgba(255, 255, 255, 0.10)';
-const white20 = 'rgba(255, 255, 255, 0.20)';
-const white50 = 'rgba(255, 255, 255, 0.50)';
-const veryLightBlue = '#C7EBFF';
-const skyBlue = '#29B8F5';
-const skyBlue20 = 'rgba(41, 184, 245, 0.20)';
-const gray00 = '#D3DBE2';
-const gray10 = '#A9B7C1';
-const gray20 = '#686C76';
-const gray30 = '#3B3E46';
-const gray40 = '#262b34';
-const gray50 = '#181F2A';
-const gray60 = '#0E131D';
-const blue5 = 'rgba(41, 184, 245, 0.05)';
-const blue10 = 'rgba(106, 232, 250, 0.10)'
-const blue16 = 'rgba(106, 232, 250, 0.16)'
-const blue20 = 'rgba(106, 232, 250, 0.20)';
-const blue24 = 'rgba(106, 232, 250, 0.24)';
-const blue30 = 'rgba(106, 232, 250, 0.30)';
-const blue40 = 'rgba(41, 184, 245, 0.40)';
-const darkBlue = '#006DD1';
-const darkBlue40 = '#29B8F566';
-const grey500 = '#ABB3B9';
-const dangerRed = '#D71616';
-const primaryHover = '#83EFFF';
-const primaryPressed = '#2ABDD2';
-const orange = '#F2994A';
-const lightOrange = 'rgba(255, 235, 211, 1)';
-const orangeFill5 = 'rgba(233, 121, 18, 0.05)';
-const orangeOutline40 = 'rgba(233, 121, 18, 0.4)';
-const green20 = 'rgba(43, 212, 141, 0.20)'
-const green = '#2BD48D';
-const purple20 = '#DE7EDA33';
-const purple40 = '#DE7EDA66';
-
-
+import { alitaButtonStyle } from "@/components/Button.jsx";
+import lightPalette from './lightPalette.js';
+import darkPalette, { darkBlue, white } from './darkPalette.js';
 
 export const typographyVariants = {
   headingMedium: {
-    color: white,
+    color: (theme) => theme.palette.text.secondary,
     fontStyle: 'normal',
     fontWeight: 600,
     fontSize: '16px',
     lineHeight: '24px',
   },
   headingSmall: {
-    color: white,
+    color: (theme) => theme.palette.text.secondary,
     fontStyle: 'normal',
     fontWeight: 600,
     fontSize: '14px',
@@ -80,6 +41,12 @@ export const typographyVariants = {
     fontSize: '12px',
     lineHeight: '16px',
   },
+  bodySmall2: {
+    fontStyle: 'normal',
+    fontWeight: 400,
+    fontSize: '12px',
+    lineHeight: '20px',
+  },
   subtitle: {
     fontStyle: 'normal',
     fontWeight: 500,
@@ -90,172 +57,239 @@ export const typographyVariants = {
   },
 }
 
-const darkModeComponents = {
-  components: {
-    MuiFormControl: {
-      styleOverrides: {
-        root: {
-          '&.Mui-error': {
-            boxShadow: 'none',
-          },
+const components = {
+  MuiFormControl: {
+    styleOverrides: {
+      root: {
+        '&.Mui-error': {
+          boxShadow: 'none',
         },
       },
     },
-    MuiCssBaseline: {
-      styleOverrides: {
-        '*': {
-          scrollbarWidth: 'none',
+  },
+  MuiCssBaseline: {
+    styleOverrides: {
+      '*': {
+        scrollbarWidth: 'none',
+      },
+      body: {
+        caretColor: 'transparent',
+        height: '100%',
+        '::-webkit-scrollbar': {
+          display: 'none'
         },
-        body: {
-          caretColor: 'transparent',
-          height: '100%',
-          '::-webkit-scrollbar': {
-            display: 'none'
-          },
-          msOverflowStyle: 'none',
-        },
-        input: {
-          caretColor: 'auto',
-        },
-        textArea: {
-          caretColor: 'auto',
+        msOverflowStyle: 'none',
+      },
+      input: {
+        caretColor: 'auto',
+      },
+      textArea: {
+        caretColor: 'auto',
+      }
+    },
+  },
+  MuiAvatar: {
+    styleOverrides: {
+      root: ({ theme }) => ({
+        background: theme.palette.background.avatar,
+        color: theme.palette.text.default,
+      })
+    }
+  },
+  MuiChip: {
+    styleOverrides: {
+      root: ({ theme }) => ({
+        background: theme.palette.background.avatar,
+      }),
+      outlined: ({ theme }) => ({
+        background: theme.palette.background.alitaDefault,
+        color: theme.palette.text.secondary,
+      })
+    },
+  },
+  MuiPaper: {
+    styleOverrides: {
+      root: ({ theme }) => ({
+        background: theme.palette.background.alitaDefault,
+      })
+    }
+  },
+  MuiSelect: {
+    styleOverrides: {
+      select: ({ theme }) => ({
+        color: theme.palette.text.secondary,
+      })
+    }
+  },
+  MuiMenu: {
+    styleOverrides: {
+      paper: ({ theme }) => ({
+        background: theme.palette.background.secondary,
+        borderRadius: '0.5rem',
+        border: `1px solid ${theme.palette.border.lines}`,
+      }),
+    },
+  },
+  MuiTablePagination: {
+    styleOverrides: {
+      root: ({ theme }) => ({
+        fontSize: '0.75rem',
+        color: theme.palette.text.default,
+        '& .MuiTablePagination-select.MuiSelect-standard': {
+          color: theme.palette.text.default,
         }
+      }),
+      selectLabel: ({ theme }) => ({
+        ...typographyVariants.labelSmall,
+        color: theme.palette.text.button.disabled,
+      }),
+      displayedRows: ({ theme }) => ({
+        ...typographyVariants.labelSmall,
+        color: theme.palette.text.default,
+      }),
+      menuItem: {
+        fontSize: '0.75rem',
       },
     },
-    MuiAvatar: {
-      styleOverrides: {
-        root: {
-          background: deepGrey,
-          color: gray10,
-        }
-      }
-    },
-    MuiChip: {
-      styleOverrides: {
-        root: {
-          background: deepGrey,
+  },
+  MuiTab: {
+    styleOverrides: {
+      root: ({ theme }) => ({
+        "&.MuiTab-textColorPrimary": {
+          color: theme.palette.text.default,
         },
-        outlined: {
-          background: gray60,
-          color: white,
-        }
+        "&.Mui-selected": {
+          color: theme.palette.primary.main,
+        },
+      }),
+    },
+  },
+  MuiAlert: {
+    styleOverrides: {
+      filledSuccess: {
+        backgroundColor: 'green',
+        background: 'green',
+        color: white
       },
-    },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          background: gray60,
-        }
-      }
-    },
-    MuiSelect: {
-      styleOverrides: {
-        select: {
-          color: white,
-        }
-      }
-    },
-    MuiMenu: {
-      styleOverrides: {
-        paper: {
-          background: gray50,
-          borderRadius: '0.5rem',
-          border: `1px solid ${gray30}`,
-        },
+      filledError: {
+        backgroundColor: 'red',
+        background: 'red',
+        color: white
       },
-    },
-    MuiTablePagination: {
-      styleOverrides: {
-        root: {
-          fontSize: '0.75rem',
-          color: gray10,
-          '& .MuiTablePagination-select.MuiSelect-standard': {
-            color: gray10,
-          }
-        },
-        selectLabel: {
-          ...typographyVariants.labelSmall,
-          color: gray20,
-        },
-        displayedRows: {
-          ...typographyVariants.labelSmall,
-          color: gray10,
-        },
-        menuItem: {
-          fontSize: '0.75rem',
-        },
+      filledInfo: {
+        backgroundColor: darkBlue,
+        background: darkBlue,
+        color: white
       },
-    },
-    MuiTab: {
-      styleOverrides: {
-        root: {
-          "&.MuiTab-textColorPrimary": {
-            color: gray10,
-          },
-          "&.Mui-selected": {
-            color: primaryDefault,
-          },
-        },
+      filledWarning: {
+        backgroundColor: 'orange',
+        background: 'orange',
+        color: white
       },
+    }
+  },
+  MuiRadio: {
+    styleOverrides: {
+      root: ({ theme }) => ({
+        size: 16,
+        color: theme.palette.text.default,
+        "&.Mui-checked": {
+          color: theme.palette.text.secondary,
+        },
+        '& .MuiSvgIcon-root': {
+          fontSize: 20,
+        },
+      }),
+      
+    }
+  },
+  MuiCheckbox: {
+    styleOverrides: {
+      root: ({ theme }) => ({
+        '&.Mui-checked': {
+          color: theme.palette.icon.fill.select, // color when checked
+        },
+        '&.MuiCheckbox-indeterminate': {
+          color: theme.palette.icon.fill.select, // color when indeterminate
+        },
+      }),
     },
-    MuiAlert: {
-      styleOverrides: {
-        filledSuccess: {
-          backgroundColor: 'green',
-          color: white
-        },
-        filledError: {
-          backgroundColor: 'red',
-          color: white
-        },
-        filledInfo: {
-          backgroundColor: darkBlue,
-          color: white
-        },
-        filledWarning: {
-          backgroundColor: 'orange',
-          color: white
-        },
-      }
+  },
+  MuiInput: {
+    styleOverrides: {
+      input: ({ theme }) => ({
+        ...typographyVariants.bodyMedium,
+        color: theme.palette.text.secondary
+      }),
     },
-    MuiRadio: {
-      styleOverrides: {
-        root: {
-          size: 16,
-          color: gray10,
-          "&.Mui-checked": {
-            color: white,
-          },
-          '& .MuiSvgIcon-root': {
-            fontSize: 20,
-          },
-        },
-
-      }
+  },
+  MuiDrawer: {
+    styleOverrides: {
+      paper: ({ theme }) => ({
+        background: theme.palette.background.secondary, // Your color here
+      }),
+      paperAnchorLeft: ({ theme }) => ({
+        borderRight: `1px solid ${theme.palette.border.lines}`,
+      }),
+      paperAnchorRight: ({ theme }) => ({
+        borderLeft: `1px solid ${theme.palette.border.lines}`,
+      }),
     },
-    MuiIconButton: {
-      styleOverrides: {
-        root: {
-          '&:focus': {
-            outline: 'none'
-          },
-        },
-      }
+  },
+  MuiAppBar: {
+    styleOverrides: {
+      root: ({ theme }) => ({
+        background: theme.palette.background.alitaDefault, // Your color here
+      }),
     },
-  }
+  },
+  MuiBadge: {
+    styleOverrides: {
+      badge: ({ theme }) => ({
+        ...typographyVariants.labelSmall,
+        color: theme.palette.text.secondary,
+        height: '16px',
+        minWidth: '16px',
+        borderRadius: '8px',
+        padding: '0px 4.5px',
+        background: theme.palette.background.tabButton.active,
+      }),
+    },
+  },
+  MuiTooltip: {
+    styleOverrides: {
+      tooltip: ({ theme }) => ({
+        backgroundColor: theme.palette.background.tooltip.default,
+        color: theme.palette.text.button.primary,
+        ...typographyVariants.labelSmall,
+      }),
+    },
+  },
+  MuiAutocomplete: {
+    styleOverrides: {
+      paper: ({ theme }) => ({
+        backgroundColor: theme.palette.background.secondary,
+        border: `1px solid ${theme.palette.border.lines}`,
+        borderRadius: '8px',
+        boxShadow: theme.palette.boxShadow.tagEditorPaper,
+      }),
+    },
+  },
 }
 
 const getDesignTokens = mode => ({
   breakpoints: {
     values: {
-      centered_content: CENTERED_CONTENT_BREAKPOINT,
       prompt_list_xs: 0,
       prompt_list_sm: 600,
-      prompt_list_full_width_sm: 846,
-      prompt_list_md: 1140,
-      prompt_list_lg: 1530,
-      prompt_list_xl: 1930,
-      prompt_list_xxl: 2570,
+      prompt_list_full_width_sm: 1024,
+      prompt_list_md: 1366,
+      prompt_list_lg: 1440,
+      prompt_list_xl: 1800,
+      prompt_list_xxl: 2560,
+      prompt_list_xxxl: 3440,
+      prompt_list_xxxxl: 3840,
+      prompt_list_xxxxxl: 5120,
       tablet: 1024,
       xs: 0,
       sm: 600,
@@ -269,147 +303,30 @@ const getDesignTokens = mode => ({
     fontFeatureSettings: '"clig" 0, "liga" 0',
     ...typographyVariants
   },
-  palette: mode === 'dark' ? {
-    mode: 'dark',
-    primary: {
-      main: primaryDefault,
-    },
-    secondary: {
-      main: '#A9B7C1'
-    },
-    info: {
-      main: darkBlue,
-      secondary: darkBlue40
-    },
-    background: {
-      default: gray60,
-      secondary: gray50,
-      userInputBackground: white5,
-      activeBG: '#26323D',
-      categoriesButton: {
-        selected: {
-          active: darkBlue,
-          hover: darkBlue40
+  palette: mode === 'dark' ? darkPalette : lightPalette,
+  components: {
+    MuiButton: {
+      variants: [
+        {
+          props: { variant: 'alita' },
+          style: ({ theme, color }) => alitaButtonStyle(theme, color),
         }
-      },
-      tabButton: {
-        active: white20,
-        default: white5,
-      },
-      icon: {
-        default: white10,
-        trophy: '#48433F',
-      },
-      select: {
-        hover: white10,
-        selected: {
-          default: blue16,
-          hover: blue24,
-        }
-      },
-      button: {
-        default: white10,
-        normal: white10,
-        danger: dangerRed,
-        primary: {
-          default: primaryDefault,
-          hover: primaryHover,
-          pressed: primaryPressed,
-          disabled: gray20,
-        },
-        secondary: {
-          default: white10,
-          hover: white20,
-          pressed: gray60,
-          disabled: gray20,
-        }
-      },
-      tooltip: {
-        default: gray00
-      },
-      tips: blue5,
-      attention: orangeFill5,
-      text: {
-        highlight: orange,
-      },
-      aiParticipantIcon: skyBlue20,
-      aiAnswerBkg: '#262B34',
-      aiAnswerActions: 'linear-gradient(270deg, #262B34 82.5%, rgba(38, 43, 52, 0.00) 100%)',
-      userMessageActions: 'linear-gradient(270deg, #0E131D 82.5%, rgba(14, 19, 29, 0.00) 100%)',
-      conversationStarters: {
-        default: purple20,
-        hover: purple40
-      },
+      ],
     },
-    border: {
-      lines: gray30,
-      hover: gray10,
-      activeBG: '#26323D',
-      category: {
-        selected: white20,
+    MuiDialog: {
+      styleOverrides: {
+        paper: ({ theme }) => ({
+          background: theme.palette.background.secondary,
+          borderRadius: '16px',
+          border: '1px solid',
+          borderColor: theme.palette.border.lines,
+          boxShadow: '0px 0px 23.6px 0px #FFFFFF0D'
+        })
       },
-      tips: blue40,
-      attention: orangeOutline40,
-      table: gray40,
+      
     },
-    text: {
-      default: gray10,
-      primary: gray10,
-      secondary: white,
-      button: {
-        primary: gray60,
-        secondary: gray60,
-        disabled: gray20,
-        showMore: primaryPressed,
-      },
-      input: {
-        label: gray10,
-        primary: gray60,
-        placeholder: gray30,
-        disabled: white50,
-      },
-      select: {
-        selected: {
-          primary: white,
-          secondary: gray10,
-        },
-      },
-      info: skyBlue,
-      tips: veryLightBlue,
-      attention: lightOrange,
-      metrics: gray00,
-      contextHighLight: '#3d3d3d',
-    },
-    icon: {
-      main: gray10,
-      fill: {
-        default: gray10,
-        primary: grey500,
-        secondary: white,
-        send: gray60,
-        trophy: '#FFD3A0',
-        tips: skyBlue,
-        disabled: gray20,
-        attention: orange,
-        is_default: green20,
-      }
-    },
-    split: {
-      default: blue20,
-      hover: blue30,
-      pressed: blue10,
-    },
-    status: {
-      draft: skyBlue,
-      onModeration: '#E97912',
-      published: green,
-      rejected: dangerRed,
-      userApproval: '#F1DB17',
-    }
-  } : {
-    mode: 'light',
+    ...components,
   },
-  ...(mode === 'dark' ? darkModeComponents : {}),
 });
 
 export default getDesignTokens;

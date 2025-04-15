@@ -5,7 +5,6 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useTheme } from '@emotion/react';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { useCallback, useState } from 'react';
-import { styled } from '@mui/material/styles';
 
 export const StyledExpandMoreIcon = styled(KeyboardArrowDownIcon)(({ theme }) => ({
   color: theme.palette.icon.fill.default,

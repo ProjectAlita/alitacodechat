@@ -3,16 +3,15 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
-import getDesignTokens from "./MainTheme.js";
+import useAlitaTheme from "@/useAlitaTheme.js";
+import { Provider } from "react-redux";
+import Store from "@/store.js";
 
 const RootComponent = () => {
-  const getTheme = React.useCallback(() => {
-    return createTheme(getDesignTokens('dark'));
-  }, []);
-
+  const { globalTheme } = useAlitaTheme();
 
   return (
-    <ThemeProvider theme={getTheme()}>
+    <ThemeProvider theme={globalTheme}>
       <CssBaseline />
       <App />
     </ThemeProvider>
@@ -21,6 +20,8 @@ const RootComponent = () => {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RootComponent />
+    <Provider store={Store}>
+      <RootComponent />
+    </Provider>
   </React.StrictMode>
 );

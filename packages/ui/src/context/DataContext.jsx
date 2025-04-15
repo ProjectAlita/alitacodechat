@@ -2,7 +2,9 @@
 import { ROLES } from '@/common/constants.js';
 import { createContext, useCallback, useEffect, useRef, useState } from 'react';
 import { UiMessageTypes, VsCodeMessageTypes } from 'shared';
-import {removeTrailingSlashes} from "@/common/utils.js";
+import { removeTrailingSlashes } from "@/common/utils.js";
+import { useDispatch } from "react-redux";
+import { actions } from "@/slices/settings.js";
 
 const DataContext = createContext(undefined);
 
@@ -49,6 +51,7 @@ export const DataProvider = ({ children }) => {
 
   const [messagePromises, setMessagePromises] = useState({});
   const [alternativeCallsToIde, setAlternativeCallsToIde] = useState([]);
+  const dispatch = useDispatch();
 
   const sendMessage = useCallback(({ type, data }) => {
     const id = new Date().getTime();
@@ -64,7 +67,6 @@ export const DataProvider = ({ children }) => {
 
   const loadCoreData = useCallback(() => {
     if (!vscodeRef.current) return
-    // console.log('loadCoreData', VsCodeMessageTypes);
 
     vscodeRef.current?.postMessage({
       type: VsCodeMessageTypes.getSocketConfig,
@@ -83,6 +85,9 @@ export const DataProvider = ({ children }) => {
     });
     vscodeRef.current?.postMessage({
       type: VsCodeMessageTypes.getDeployments,
+    });
+    vscodeRef.current?.postMessage({
+      type: VsCodeMessageTypes.getIdeSettings,
     });
   }, []);
 
@@ -182,6 +187,9 @@ export const DataProvider = ({ children }) => {
         case UiMessageTypes.getModelSettings:
           setModelSettings(message.data);
           break;
+        case UiMessageTypes.getIdeSettings:
+          dispatch(actions.setMode(message.data.mode ?? 'dark'));
+          break;
       }
     }
 
@@ -190,7 +198,7 @@ export const DataProvider = ({ children }) => {
     return () => {
       window.removeEventListener('message', messageHandler);
     };
-  }, [loadCoreData, messagePromises]);
+  }, [loadCoreData, messagePromises, dispatch]);
 
   // Alternative method to send/receive messages from Ide
   useEffect(() => {

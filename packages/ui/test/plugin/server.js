@@ -51,6 +51,11 @@ app.get('/', async (req, res) => {
             case 'extension.getSelectedText':
                 data = 'Some stubbed selected text';
                 break;
+            case 'extension.getIdeSettings':
+                data = {
+                    mode: 'asd',
+                };
+                break;
             case 'extension.getSocketConfig':
                 data = {
                     projectId,

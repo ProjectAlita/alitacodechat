@@ -1,35 +1,21 @@
 
-import { Box, Typography, Divider } from '@mui/material';
+import {Box, Button, Divider, Typography} from '@mui/material';
 import { AccordionShowMode, StyledAccordion, StyledAccordionSummary, StyledAccordionDetails } from '../BasicAccordion';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useTheme } from '@emotion/react';
-import CheckedIcon from '@/components/Icons/CheckedIcon';
+import CheckedIcon from '@/assets/checked-icon.svg?react'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { useMemo, useCallback, useState, useEffect } from 'react';
 import AttentionIcon from '@/components/Icons/AttentionIcon';
 import { StyledCircleProgress } from './StyledComponents';
 import CancelIcon from '@/components/Icons/CancelIcon';
 import StyledInputEnhancer from '../StyledInputEnhancer';
-import NormalRoundButton from '@/components/NormalRoundButton';
 import { ToolActionStatus } from '@/common/constants';
 import StyledTooltip from '../Tooltip';
 import CopyIcon from '@/components/Icons/CopyIcon';
 import useToast from '../useToast';
 import Markdown from "@/components/Markdown.jsx";
-import Button from '@/components/Button';
-import { styled } from '@mui/material/styles';
-
-export const SaveButton = styled(Button)(({ theme }) => ({
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.text.button.secondary,
-  '&.Mui-disabled': {
-    backgroundColor: theme.palette.background.button.primary.disabled,
-    color: theme.palette.text.button.secondary
-  },
-  '&:hover': {
-    background: theme.palette.primary.main,
-  }
-}));
+import { useGetComponentWidth } from '@/pages/hooks';
 
 export const StyledExpandMoreIcon = styled(KeyboardArrowDownIcon)(({ theme }) => ({
   color: theme.palette.icon.fill.default,
@@ -55,26 +41,51 @@ const Status = ({ status }) => {
 
 const CONTENT_STEP_LEN = 1024
 
+const ToolInputsSection = ({toolInputs, width}) => {
+  const displayedInputs = useMemo(() => {
+    if (typeof toolInputs === 'object') {
+      return '```json\n' + JSON.stringify(toolInputs, null, 2) + '\n```';
+    }
+  }, [toolInputs]);
+  
+  if (!displayedInputs) {
+    return null
+  }
+  
+  return (
+    <>
+      <Typography variant={"subtitle1"}>Tool inputs:</Typography>
+      <Box width={width ? `${width - 24}px` : '100%'} overflow={'scroll'}>
+        <Markdown>
+          {displayedInputs}
+        </Markdown>
+      </Box>
+      <Divider sx={{mb: 5}} variant={"fullWidth"}/>
+    </>
+  )
+}
+
 export default function ToolAction({ showMode = AccordionShowMode.RightMode, defaultExpanded = false, action }) {
   const [result, setResult] = useState()
   const [displayContentLen, setDisplayContentLen] = useState(CONTENT_STEP_LEN)
-  const {ToastComponent: Toast, toastInfo} = useToast();
+  const {toastInfo} = useToast();
   const [expanded, setExpanded] = useState(defaultExpanded)
   const theme = useTheme();
   const nameColor = useMemo(() => action.status === ToolActionStatus.error
-    ?
-    theme.palette.status.rejected
-    :
-    action.status === ToolActionStatus.actionRequired
       ?
-      theme.palette.status.onModeration
+      theme.palette.status.rejected
       :
-      theme.palette.text.secondary,
+      action.status === ToolActionStatus.actionRequired
+        ?
+        theme.palette.status.onModeration
+        :
+        theme.palette.text.secondary,
     [action.status, theme.palette.status.onModeration, theme.palette.status.rejected, theme.palette.text.secondary])
+  const { componentRef, componentWidth} =  useGetComponentWidth()
   const handleChange = useCallback((event) =>
-    setResult(event.target.value),
+      setResult(event.target.value),
     []);
-
+  
   const onSubmit = useCallback(
     () => {
       //
@@ -88,7 +99,7 @@ export default function ToolAction({ showMode = AccordionShowMode.RightMode, def
     },
     [],
   )
-
+  
   const onExpanded = useCallback(
     (_, value) => {
       setExpanded(value);
@@ -98,7 +109,7 @@ export default function ToolAction({ showMode = AccordionShowMode.RightMode, def
     },
     [],
   )
-
+  
   const onCopy = useCallback(
     async () => {
       await navigator.clipboard.writeText(action.query);
@@ -140,12 +151,15 @@ export default function ToolAction({ showMode = AccordionShowMode.RightMode, def
       defaultExpanded={defaultExpanded}
       expanded={expanded}
       onChange={onExpanded}
+      ref={componentRef}
       sx={{
         borderBottom: `1px solid ${theme.palette.border.lines}`,
         '&.Mui-expanded': {
           margin: '0px 0;'
-        }
+        },
+        width: '100%',
       }}
+      slotProps={{ transition: { unmountOnExit: true } }}
     >
       <StyledAccordionSummary
         expandIcon={<StyledExpandMoreIcon sx={{ width: '22px', height: '22px' }} />}
@@ -168,19 +182,12 @@ export default function ToolAction({ showMode = AccordionShowMode.RightMode, def
           paddingBottom: '16px',
           paddingLeft: '12px',
           paddingRight: '12px',
-          gap: '12px'
+          gap: '12px',
+          width: '100%',
         }}
       >
-        {action.toolInputs &&
-          <>
-            <Typography variant={"subtitle1"}>Tool inputs:</Typography>
-            <Markdown>
-              {'```json\n' + JSON.stringify(action.toolInputs, null, 2) + '\n```'}
-            </Markdown>
-            <Divider sx={{mb: 5}} variant={"fullWidth"}/>
-          </>
-        }
-        <Box sx={{ overflowWrap: 'break-word', whiteSpace: 'pre-wrap'}}>
+        <ToolInputsSection toolInputs={action.toolInputs} width={componentWidth}/>
+        <Box sx={{ overflowWrap: 'break-word', whiteSpace: 'pre-wrap', width: componentWidth ? `${componentWidth - 24}px` : '100%', overflow: 'scroll'}}>
           {action.content?.slice(0, displayContentLen)}
         </Box>
         {action.content?.length > CONTENT_STEP_LEN &&
@@ -246,17 +253,16 @@ export default function ToolAction({ showMode = AccordionShowMode.RightMode, def
               }}
             />
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <SaveButton disabled={!result} onClick={onSubmit} >
+              <Button variant='alita' color='primary'  disabled={!result} onClick={onSubmit} >
                 Submit
-              </SaveButton>
-              <NormalRoundButton variant='contained' color='secondary' onClick={onCancel}>
+              </Button>
+              <Button variant='alita' color='secondary' onClick={onCancel}>
                 Cancel
-              </NormalRoundButton>
+              </Button>
             </Box>
           </Box>
         }
       </StyledAccordionDetails>
-      <Toast/>
     </StyledAccordion>
   );
 }

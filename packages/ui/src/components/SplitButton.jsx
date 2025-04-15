@@ -3,7 +3,6 @@ import { Box, Button, ButtonGroup, ClickAwayListener, Grow, MenuList, Paper, Pop
 import ArrowDownIcon from './Icons/ArrowDownIcon';
 import { useTheme } from '@emotion/react';
 import { StyledMenuItem, StyledMenuItemIcon } from './SingleSelect';
-import { styled } from '@mui/material/styles';
 import SvgIcon from "@mui/material/SvgIcon";
 
 const StyledButtonGroup = styled(ButtonGroup)(() => (`

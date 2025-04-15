@@ -1,7 +1,6 @@
 
 import { filterProps } from "@/common/utils";
 import { keyframes } from "@emotion/react";
-import styled from "@emotion/styled";
 import { Box } from '@mui/material';
 
 const calculateInitialTextShadow = (stringLength, width, color) => {

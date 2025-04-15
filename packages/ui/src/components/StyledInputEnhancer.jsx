@@ -5,7 +5,6 @@ import { Box, TextField, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import { useCallback, useState } from 'react';
 import useAutoBlur from '@/components/useAutoBlur';
-import { styled } from '@mui/material/styles';
 
 export const StyledInput = styled(TextField)(({ theme }) => ({
   padding: `8px 0 0 0`,
