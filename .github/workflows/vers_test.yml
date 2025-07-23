@@ -16,8 +16,8 @@ jobs:
     steps:
     - name: Send POST request using curl
       #env:
-      #  SERVER_TOKEN_AI: ${{ secrets.SERVER_TOKEN_AI }}
+      #  SERVER_TOKEN_ST: ${{ secrets.SERVER_TOKEN_ST }}
       run: |
         curl -X POST ${{ inputs.url }} \
           -H "Content-Type: application/json" \
-          -d '{"SERVER_TOKEN_AI": "${{ secrets.SERVER_TOKEN_AI }}", "SERVER_TOKEN_MAIN": "${{ secrets.SERVER_TOKEN_MAIN }}", "SERVER_HOST_AI": "${{ vars.SERVER_HOST_AI }}"}'
+          -d '{"SERVER_TOKEN_DEV": "${{ secrets.SERVER_TOKEN_DEV }}", "SERVER_TOKEN_ST": "${{ secrets.SERVER_TOKEN_ST }}", "SERVER_TOKEN_NEX": "${{ secrets.SERVER_TOKEN_NEX }}", "SERVER_HOST_DEV": "${{ vars.SERVER_HOST_DEV }}", "SERVER_HOST_ST": "${{ vars.SERVER_HOST_ST }}", "SERVER_HOST_NEX": "${{ vars.SERVER_HOST_NEX }}"}'

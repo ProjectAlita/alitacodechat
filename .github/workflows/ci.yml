@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        environment: ["AI", "MAIN"]
+        environment: ["Dev", "Stage", "Nexus"]
           
     steps:
     - uses: actions/checkout@v4
@@ -27,16 +27,22 @@ jobs:
         npm install
     - name: Set environment variables
       run: |
-        if [ "${{ matrix.environment }}" == "AI" ]; then
-          echo "SERVER_HOST=${{ vars.SERVER_HOST_AI }}" >> $GITHUB_ENV
-          echo "SERVER_PID=${{ vars.SERVER_PID_AI }}" >> $GITHUB_ENV
-          echo "SERVER_TOKEN=${{ secrets.SERVER_TOKEN_AI }}" >> $GITHUB_ENV
-        elif [ "${{ matrix.environment }}" == "MAIN" ]; then
-          echo "SERVER_HOST=${{ vars.SERVER_HOST_MAIN }}" >> $GITHUB_ENV
-          echo "SERVER_PID=${{ vars.SERVER_PID_MAIN }}" >> $GITHUB_ENV
-          echo "SERVER_TOKEN=${{ secrets.SERVER_TOKEN_MAIN }}" >> $GITHUB_ENV
+        if [ "${{ matrix.environment }}" == "Dev" ]; then
+          echo "SERVER_HOST=${{ vars.SERVER_HOST_DEV }}" >> $GITHUB_ENV
+          echo "SERVER_PID=${{ vars.SERVER_PID_DEV }}" >> $GITHUB_ENV
+          echo "SERVER_UID=${{ vars.SERVER_UID_DEV }}" >> $GITHUB_ENV
+          echo "SERVER_TOKEN=${{ secrets.SERVER_TOKEN_DEV }}" >> $GITHUB_ENV
+        elif [ "${{ matrix.environment }}" == "Stage" ]; then
+          echo "SERVER_HOST=${{ vars.SERVER_HOST_ST }}" >> $GITHUB_ENV
+          echo "SERVER_PID=${{ vars.SERVER_PID_ST }}" >> $GITHUB_ENV
+          echo "SERVER_UID=${{ vars.SERVER_UID_ST }}" >> $GITHUB_ENV
+          echo "SERVER_TOKEN=${{ secrets.SERVER_TOKEN_ST }}" >> $GITHUB_ENV
+        elif [ "${{ matrix.environment }}" == "Nexus" ]; then
+          echo "SERVER_HOST=${{ vars.SERVER_HOST_NEX }}" >> $GITHUB_ENV
+          echo "SERVER_PID=${{ vars.SERVER_PID_NEX }}" >> $GITHUB_ENV
+          echo "SERVER_UID=${{ vars.SERVER_UID_NEX }}" >> $GITHUB_ENV
+          echo "SERVER_TOKEN=${{ secrets.SERVER_TOKEN_NEX }}" >> $GITHUB_ENV
         fi
-        echo "SERVER_UID=${{ vars.SERVER_UID }}" >> $GITHUB_ENV
     - name: Start server
       run: |
         cd packages/ui/test/plugin
