@@ -54,28 +54,28 @@ class ChatViewProvider {
             })
             break;
           }
-          case VsCodeMessageTypes.getPrompts: {
-            this.getResponse(alitaService, 'getPrompts', {})
-            break;
-          }
-          case VsCodeMessageTypes.getPromptDetail: {
-            this.getResponse(alitaService, 'getPromptDetail', message.data)
-            break;
-          }
-          case VsCodeMessageTypes.getDatasources: {
-            this.getResponse(alitaService, 'getDatasources')
-            break;
-          }
-          case VsCodeMessageTypes.getDatasourceDetail: {
-            this.getResponse(alitaService, 'getDatasourceDetail', message.data)
-            break;
-          }
+          // case VsCodeMessageTypes.getPrompts: {
+          //   this.getResponse(alitaService, 'getPrompts', {})
+          //   break;
+          // }
+          // case VsCodeMessageTypes.getPromptDetail: {
+          //   this.getResponse(alitaService, 'getPromptDetail', message.data)
+          //   break;
+          // }
+          // case VsCodeMessageTypes.getDatasources: {
+          //   this.getResponse(alitaService, 'getDatasources')
+          //   break;
+          // }
+          // case VsCodeMessageTypes.getDatasourceDetail: {
+          //   this.getResponse(alitaService, 'getDatasourceDetail', message.data)
+          //   break;
+          // }
           case VsCodeMessageTypes.getApplications: {
             this.getResponse(alitaService, 'getApplications')
             break;
           }
-          case VsCodeMessageTypes.getDeployments: {
-            this.getResponse(alitaService, 'getDeployments')
+          case VsCodeMessageTypes.getEmbeddings: {
+            this.getResponse(alitaService, 'getEmbeddings')
             break;
           }
           case VsCodeMessageTypes.getApplicationDetail: {

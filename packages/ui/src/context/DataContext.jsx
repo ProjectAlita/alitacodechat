@@ -18,32 +18,33 @@ const filterByCodeTag = (list) => {
     ));
 }
 
-const getFilteredModels = (integration, capabilities) => {
-  return (integration?.settings?.models || [])
-    .filter(modelItem => {
-      return capabilities.some(capability => modelItem.capabilities[capability]);
-    })
-    .map(({ name }) => ({
-      model_name: name,
-      integration_uid: integration.uid,
-    }));
-}
+// const getFilteredModels = (integration) => {
+//   console.log("INTEG 1", integration)
+//   return {
+//       model_name: integration?.data?.name,
+//       integration_uid: integration?.uuid,
+//     };
+// }
 
-const getIntegrationOptions = (integrations) => integrations.reduce((accumulator, integration) => {
-  const filteredModels = getFilteredModels(integration, ['chat_completion', 'completion']);
-  if (filteredModels.length > 0) {
-    accumulator = [...accumulator, ...filteredModels];
-  }
-  return accumulator;
-}, []);
+const getIntegrationOptions = (integrations) => {
+  console.log("INTEG 0", integrations.shared.items)
+  const result = integrations.shared.items.map((integration) => {
+    return {
+      model_name: integration?.data?.name,
+      integration_uid: integration?.uuid
+    };
+  });
+  console.log("INTEG 10", result)
+  return result;
+}
 
 export const DataProvider = ({ children }) => {
   const [providerConfig, setProviderConfig] = useState(null);
   const [socketConfig, setSocketConfig] = useState(null);
   const [chatHistory, setChatHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [prompts, setPrompts] = useState([]);
-  const [datasources, setDatasources] = useState([]);
+  // const [prompts, setPrompts] = useState([]);
+  // const [datasources, setDatasources] = useState([]);
   const [applications, setApplications] = useState([]);
   const [deployments, setDeployments] = useState([])
   const vscodeRef = useRef(null);
@@ -74,17 +75,17 @@ export const DataProvider = ({ children }) => {
     vscodeRef.current?.postMessage({
       type: VsCodeMessageTypes.getModelSettings,
     });
-    vscodeRef.current?.postMessage({
-      type: VsCodeMessageTypes.getPrompts,
-    });
-    vscodeRef.current?.postMessage({
-      type: VsCodeMessageTypes.getDatasources,
-    });
+    // vscodeRef.current?.postMessage({
+    //   type: VsCodeMessageTypes.getPrompts,
+    // });
+    // vscodeRef.current?.postMessage({
+    //   type: VsCodeMessageTypes.getDatasources,
+    // });
     vscodeRef.current?.postMessage({
       type: VsCodeMessageTypes.getApplications,
     });
     vscodeRef.current?.postMessage({
-      type: VsCodeMessageTypes.getDeployments,
+      type: VsCodeMessageTypes.getEmbeddings,
     });
     vscodeRef.current?.postMessage({
       type: VsCodeMessageTypes.getIdeSettings,
@@ -137,16 +138,16 @@ export const DataProvider = ({ children }) => {
         case UiMessageTypes.stopLoading:
           setIsLoading(false);
           break;
-        case UiMessageTypes.getPrompts:
-          setPrompts(filterByCodeTag(message.data));
-          break;
-        case UiMessageTypes.getDatasources:
-          setDatasources(filterByCodeTag(message.data));
-          break;
+        // case UiMessageTypes.getPrompts:
+        //   setPrompts(filterByCodeTag(message.data));
+        //   break;
+        // case UiMessageTypes.getDatasources:
+        //   setDatasources(filterByCodeTag(message.data));
+        //   break;
         case UiMessageTypes.getApplications:
           setApplications(filterByCodeTag(message.data));
           break;
-        case UiMessageTypes.getDeployments:
+        case UiMessageTypes.getEmbeddings:         
           setDeployments(getIntegrationOptions(message.data || []));
           break;
         case UiMessageTypes.settingsChanged:
@@ -174,17 +175,20 @@ export const DataProvider = ({ children }) => {
             const urlSrcObj = new URL(socketHostSrc.concat(socketPathSrc));
             const socketHost = urlSrcObj.origin;
             const socketPath = urlSrcObj.pathname;
+
             urlSrcObj.protocol = urlSrcObj.protocol.replace("ws", "http");
             urlSrcObj.pathname = urlSrcObj.pathname.replace("/socket.io", "");
             const url = removeTrailingSlashes(urlSrcObj.toString());
             const apiUrl = url.concat("/api/v1");
             const projectId = message.data.projectId;
             const token = message.data.token;
-            
+            console.log("SoCKET ===", socketHost)
+            console.log("SoCKET ===", socketPath)
             setProviderConfig({url, apiUrl, socketHost, socketPath, projectId, token});
           }
           break;
         case UiMessageTypes.getModelSettings:
+          console.log("55", message.data)
           setModelSettings(message.data);
           break;
         case UiMessageTypes.getIdeSettings:
@@ -258,8 +262,8 @@ export const DataProvider = ({ children }) => {
         chatHistory,
         setChatHistory,
         isLoading,
-        prompts,
-        datasources,
+        // prompts,
+        // datasources,
         applications,
         deployments,
         sendMessage,

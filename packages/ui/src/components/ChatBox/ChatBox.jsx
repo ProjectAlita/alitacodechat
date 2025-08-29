@@ -123,7 +123,7 @@ const getDefaultModel = (model = {}, modelsList) => {
 
 
 const generatePayload = ({
-  projectId, prompt_id, type, name, variables, currentVersionId, model_settings
+  projectId, prompt_id, type, name, variables, currentVersionId, llm_settings
 }) => ({
   prompt_id,
   projectId,
@@ -131,7 +131,7 @@ const generatePayload = ({
   user_name: name,
   project_id: projectId,
   prompt_version_id: currentVersionId,
-  model_settings,
+  llm_settings,
 
   type,
   variables: variables ? variables.map(({ name: key, value }) => ({
@@ -142,11 +142,12 @@ const generatePayload = ({
 })
 
 const generateChatPayload = ({
-  projectId, prompt_id, question, messages, variables, chatHistory, name, currentVersionId, model_settings, interaction_uuid
+  projectId, prompt_id, question, messages, variables, chatHistory, name, currentVersionId, llm_settings, interaction_uuid
 }) => {
   const payload = generatePayload({
-    projectId, prompt_id, type: 'chat', variables, name, currentVersionId, model_settings
+    projectId, prompt_id, type: 'chat', variables, name, currentVersionId, llm_settings
   })
+  console.log("TGGG === ", payload)
   payload.chat_history = chatHistory ? chatHistory.map((message) => {
     const { role, content, name: userName } = message;
     if (userName) {
@@ -267,10 +268,10 @@ const ChatBox = forwardRef(({
   }, [])
 
   const handleSocketEvent = useCallback(async message => {
+    console.log("HANDLE EVENT")
     const { stream_id, message_id, type: socketMessageType, message_type, response_metadata } = message
     const { task_id } = message.content instanceof Object ? message.content : {}
     const [msgIndex, msg] = getMessage(stream_id || message_id, message_type)
-
     const scrollToMessageBottom = () => {
       if (sessionStorage.getItem(AUTO_SCROLL_KEY) === 'true') {
         const messageElement = listRefs.current[msgIndex]
@@ -388,13 +389,11 @@ const ChatBox = forwardRef(({
 
   const dataContext = useContext(DataContext);
   const { emit, error } = useSocket(
-    chatWith === ChatTypes.datasource ?
-      sioEvents.datasource_predict :
-      chatWith === ChatTypes.application ?
-        sioEvents.application_predict :
-        sioEvents.promptlib_predict,
+    chatWith === ChatTypes.application ?
+      sioEvents.application_predict :
+      sioEvents.promptlib_predict,
     handleSocketEvent
-  )
+  ) 
   
   useEffect(() => {
     if (error) {
@@ -426,11 +425,12 @@ const ChatBox = forwardRef(({
   const onPredictStream = useCallback(async data => {
     setTimeout(scrollToMessageListEnd, 0);
 
-    const { modelSettings, socketConfig, sendMessage } = dataContext
+    const { /*modelSettings, */ socketConfig, sendMessage } = dataContext
 
     const selectedText = await sendMessage({
       type: VsCodeMessageTypes.getSelectedText
     });
+    console.log("TYPE == 0")
     const messages = []
     if (selectedText) {
       messages.push({
@@ -451,23 +451,24 @@ const ChatBox = forwardRef(({
         sentTo: participantRef.current ?? {}
       }]
     })
-
+    console.log("1")
     const projectId = socketConfig?.projectId
     if (!projectId) {
       toastError('Elitea Code extension Project ID setting is missing. Please set it to continue chat.');
       return
     }
       
+    console.log("2")
     if (error) {
       toastError(error);
       return;
     }
-
+   console.log("22", data)
     if (data.application_id) {
-      if (!data.llm_settings?.integration_uid) {
-        toastError('Application chat model is missing. Please select another one for chat.');
-        return
-      }
+      // if (!data.llm_settings?.integration_uid) {
+      //   toastError('Application chat model is missing. Please select another one for chat.');
+      //   return
+      // }
       const payload = generateApplicationStreamingPayload({
         ...data,
         ...data.llm_settings,
@@ -477,27 +478,29 @@ const ChatBox = forwardRef(({
         chatHistory,
         interaction_uuid
       })
-
+      console.log("23", payload)
       emit(payload)
       return
-    } else if (data.datasource_id) {
-      if (!data.chat_settings_ai?.integration_uid ||
-        !data.chat_settings_embedding?.integration_uid) {
-        toastError('Datasource chat model and/or embedding setting is missing. Please select another one for chat.');
-        return
-      }
-      emit({
-        project_id: projectId,
-        version_id: data.currentVersionId || data.datasource_id,
-        input: question,
-        chat_history: chatHistory.filter(i => i.role !== MESSAGE_REFERENCE_ROLE).concat(messages),
-        context: data.context,
-        chat_settings_ai: data.chat_settings_ai,
-        chat_settings_embedding: data.chat_settings_embedding,
-        interaction_uuid
-      })
-      return
+    
+    // } else if (data.datasource_id) {
+    //   if (!data.chat_settings_ai?.integration_uid ||
+    //     !data.chat_settings_embedding?.integration_uid) {
+    //     toastError('Datasource chat model and/or embedding setting is missing. Please select another one for chat.');
+    //     return
+    //   }
+    //   emit({
+    //     project_id: projectId,
+    //     version_id: data.currentVersionId || data.datasource_id,
+    //     input: question,
+    //     chat_history: chatHistory.filter(i => i.role !== MESSAGE_REFERENCE_ROLE).concat(messages),
+    //     context: data.context,
+    //     chat_settings_ai: data.chat_settings_ai,
+    //     chat_settings_embedding: data.chat_settings_embedding,
+    //     interaction_uuid
+    //   })
+    //   return
     } else {
+      console.log("3")
       const payloadData = {
         projectId,
         question,
@@ -506,18 +509,26 @@ const ChatBox = forwardRef(({
         messages,
         interaction_uuid
       }
-      if (data.prompt_id && data.currentVersionId) {
-        payloadData.prompt_id = data.prompt_id
-        payloadData.currentVersionId = data.currentVersionId
-        payloadData.variables = data.variables
-      } else {
+      // if (data.prompt_id && data.currentVersionId) {
+      //   payloadData.prompt_id = data.prompt_id
+      //   payloadData.currentVersionId = data.currentVersionId
+      //   payloadData.variables = data.variables
+      // } else {
         if (modelSettings) {
-          payloadData.model_settings = modelSettings
-          payloadData.model_settings.model = getDefaultModel(modelSettings.model, deployments)
-          if (!payloadData.model_settings.model.model_name) {
+          console.log("44", modelSettings)
+          payloadData.llm_settings = modelSettings
+          console.log("444", payloadData)
+          payloadData.llm_settings = getDefaultModel(modelSettings.model, deployments)
+          payloadData.llm_settings.model_project_id = 1
+          payloadData.llm_settings.temperature = modelSettings.temperature
+          payloadData.llm_settings.top_p = modelSettings.top_p
+          payloadData.llm_settings.max_tokens = modelSettings.max_tokens
+          console.log("445", payloadData)
+         
+          if (!payloadData.llm_settings.model_name) {
             toastError('Elitea Code extension model settings are missing.');
             return
-          } else if (!payloadData.model_settings.model.integration_uid) {
+          } else if (!payloadData.llm_settings.integration_uid) {
             toastError('Elitea Code extension integration Uid is missing.');
             return
           }
@@ -525,8 +536,9 @@ const ChatBox = forwardRef(({
           toastError('Elitea Code extension model settings are missing.');
           return
         }
-      }
+      // }
       const payload = generateChatPayload(payloadData)
+      console.log("4", payload)
       emit(payload)
     }
   },
@@ -544,11 +556,9 @@ const ChatBox = forwardRef(({
   );
 
   const { emit: manualEmit } = useManualSocket(
-    chatWith === ChatTypes.datasource ?
-      sioEvents.datasource_leave_rooms :
-      chatWith === ChatTypes.application ?
-        sioEvents.application_leave_rooms :
-        sioEvents.promptlib_leave_rooms
+    chatWith === ChatTypes.application ?
+      sioEvents.application_leave_rooms :
+      sioEvents.promptlib_leave_rooms
   );
   const {
     isStreaming,
