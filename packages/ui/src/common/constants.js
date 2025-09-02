@@ -610,8 +610,8 @@ export const APIKeyTypes = {
 export const sioEvents = {
   application_predict: 'application_predict',
   application_leave_rooms: 'application_leave_rooms',
-  promptlib_predict: 'promptlib_predict',
-  promptlib_leave_rooms: 'promptlib_leave_rooms',
+  chat_predict: 'chat_predict',
+  chat_leave_rooms: 'chat_leave_rooms',
   datasource_predict: 'datasource_predict',
   datasource_dataset_status: 'datasource_dataset_status',
   datasource_leave_rooms: 'datasource_leave_rooms'

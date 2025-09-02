@@ -49,7 +49,7 @@ test('Verify selected text is sent in system message', async ({ page }) => {
   });
   
   const promptlibMessage = socketMessages.find(msg => 
-    msg.startsWith('42[') && msg.includes('promptlib_predict')
+    msg.startsWith('42[') && msg.includes('chat_predict')
   );
   
   expect(promptlibMessage).toBeDefined();

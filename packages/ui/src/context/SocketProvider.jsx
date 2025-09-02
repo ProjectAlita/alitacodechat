@@ -13,7 +13,6 @@ export function SocketProvider({ children }) {
   const createSocket = useCallback(() => {
     if (!providerConfig || !providerConfig.socketHost) return;
     const { socketHost, socketPath, token } = providerConfig
-    console.log("TKK == ", token)
     const socketIo = io(socketHost, {
       path: socketPath,
       reconnectionDelayMax: 2000,

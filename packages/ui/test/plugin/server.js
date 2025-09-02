@@ -70,21 +70,9 @@ app.get('/', async (req, res) => {
                 );
                 data.model.integration_uid = program.opts().modelUid;
                 break;
-            // case 'extension.getPrompts':
-            //     data = (await getData(`prompt_lib/prompts/prompt_lib/${projectId}`)).rows;
-            //     break;
-            // case 'extension.getDatasources':
-            //     data = (await getData(`datasources/datasources/prompt_lib/${projectId}`)).rows;
-            //     break;
             case 'extension.getApplications':
                 data = (await getData(`applications/applications/prompt_lib/${projectId}?offset=0&limit=1000`)).rows;
                 break;
-            // case 'extension.getPromptDetail':
-            //     data = (await getData(`prompt_lib/prompt/prompt_lib/${projectId}/${chatData}`));
-            //     break;
-            // case 'extension.getDatasourceDetail':
-            //     data = (await getData(`datasources/datasource/prompt_lib/${projectId}/${chatData}`));
-            //     break;
             case 'extension.getApplicationDetail':
                 data = (await getData(`applications/application/prompt_lib/${projectId}/${chatData}`));
                 break;

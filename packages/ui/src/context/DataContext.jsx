@@ -18,23 +18,13 @@ const filterByCodeTag = (list) => {
     ));
 }
 
-// const getFilteredModels = (integration) => {
-//   console.log("INTEG 1", integration)
-//   return {
-//       model_name: integration?.data?.name,
-//       integration_uid: integration?.uuid,
-//     };
-// }
-
 const getIntegrationOptions = (integrations) => {
-  console.log("INTEG 0", integrations.shared.items)
   const result = integrations.shared.items.map((integration) => {
     return {
       model_name: integration?.data?.name,
       integration_uid: integration?.uuid
     };
   });
-  console.log("INTEG 10", result)
   return result;
 }
 
@@ -43,10 +33,9 @@ export const DataProvider = ({ children }) => {
   const [socketConfig, setSocketConfig] = useState(null);
   const [chatHistory, setChatHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  // const [prompts, setPrompts] = useState([]);
-  // const [datasources, setDatasources] = useState([]);
   const [applications, setApplications] = useState([]);
-  const [deployments, setDeployments] = useState([])
+  const [deployments, setDeployments] = useState([]);
+  const [conversationUuid, setConversationUuid] = useState(null);
   const vscodeRef = useRef(null);
   const [modelSettings, setModelSettings] = useState(null);
 
@@ -70,17 +59,15 @@ export const DataProvider = ({ children }) => {
     if (!vscodeRef.current) return
 
     vscodeRef.current?.postMessage({
+      type: VsCodeMessageTypes.createConversation,
+       data: 'IDE Chat'
+    });
+    vscodeRef.current?.postMessage({
       type: VsCodeMessageTypes.getSocketConfig,
     });
     vscodeRef.current?.postMessage({
       type: VsCodeMessageTypes.getModelSettings,
     });
-    // vscodeRef.current?.postMessage({
-    //   type: VsCodeMessageTypes.getPrompts,
-    // });
-    // vscodeRef.current?.postMessage({
-    //   type: VsCodeMessageTypes.getDatasources,
-    // });
     vscodeRef.current?.postMessage({
       type: VsCodeMessageTypes.getApplications,
     });
@@ -138,15 +125,12 @@ export const DataProvider = ({ children }) => {
         case UiMessageTypes.stopLoading:
           setIsLoading(false);
           break;
-        // case UiMessageTypes.getPrompts:
-        //   setPrompts(filterByCodeTag(message.data));
-        //   break;
-        // case UiMessageTypes.getDatasources:
-        //   setDatasources(filterByCodeTag(message.data));
-        //   break;
         case UiMessageTypes.getApplications:
           setApplications(filterByCodeTag(message.data));
           break;
+        case UiMessageTypes.createConversation:
+          setConversationUuid(message.data.uuid);  
+          break
         case UiMessageTypes.getEmbeddings:         
           setDeployments(getIntegrationOptions(message.data || []));
           break;
@@ -182,13 +166,10 @@ export const DataProvider = ({ children }) => {
             const apiUrl = url.concat("/api/v1");
             const projectId = message.data.projectId;
             const token = message.data.token;
-            console.log("SoCKET ===", socketHost)
-            console.log("SoCKET ===", socketPath)
             setProviderConfig({url, apiUrl, socketHost, socketPath, projectId, token});
           }
           break;
         case UiMessageTypes.getModelSettings:
-          console.log("55", message.data)
           setModelSettings(message.data);
           break;
         case UiMessageTypes.getIdeSettings:
@@ -266,6 +247,7 @@ export const DataProvider = ({ children }) => {
         // datasources,
         applications,
         deployments,
+        conversationUuid,
         sendMessage,
         loadCoreData,
         callProvider,

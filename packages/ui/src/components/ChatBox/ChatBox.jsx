@@ -142,12 +142,11 @@ const generatePayload = ({
 })
 
 const generateChatPayload = ({
-  projectId, prompt_id, question, messages, variables, chatHistory, name, currentVersionId, llm_settings, interaction_uuid
+  projectId, prompt_id, question, messages, variables, chatHistory, name, currentVersionId, llm_settings, interaction_uuid, conversation_uuid
 }) => {
   const payload = generatePayload({
     projectId, prompt_id, type: 'chat', variables, name, currentVersionId, llm_settings
   })
-  console.log("TGGG === ", payload)
   payload.chat_history = chatHistory ? chatHistory.map((message) => {
     const { role, content, name: userName } = message;
     if (userName) {
@@ -161,6 +160,7 @@ const generateChatPayload = ({
     payload.messages = messages
   }
   payload.interaction_uuid = interaction_uuid;
+  payload.conversation_uuid = conversation_uuid;
   return payload
 }
 
@@ -181,8 +181,9 @@ const ChatBox = forwardRef(({
     deployments,
     providerConfig,
     modelSettings,
+    conversationUuid,
     sendMessage
-  } = useContext(DataContext);
+    } = useContext(DataContext);
   const chatInput = useRef(null);
   const listRefs = useRef([]);
   const messagesEndRef = useRef();
@@ -201,7 +202,6 @@ const ChatBox = forwardRef(({
   useEffect(() => {
     participantRef.current = participant
   }, [participant])
-
 
   useEffect(() => {
     chatWithRef.current = chatWith
@@ -268,10 +268,9 @@ const ChatBox = forwardRef(({
   }, [])
 
   const handleSocketEvent = useCallback(async message => {
-    console.log("HANDLE EVENT")
     const { stream_id, message_id, type: socketMessageType, message_type, response_metadata } = message
     const { task_id } = message.content instanceof Object ? message.content : {}
-    const [msgIndex, msg] = getMessage(stream_id || message_id, message_type)
+    const [msgIndex, msg] = getMessage(/*stream_id || */ message_id, message_type)
     const scrollToMessageBottom = () => {
       if (sessionStorage.getItem(AUTO_SCROLL_KEY) === 'true') {
         const messageElement = listRefs.current[msgIndex]
@@ -385,16 +384,16 @@ const ChatBox = forwardRef(({
       prevState[msgIndex] = msg
       return [...prevState]
     })
-  }, [getMessage, handleError, scrollToMessageListEnd, setChatHistory])
+  }, [getMessage, handleError, scrollToMessageListEnd, setChatHistory, chatHistory])
 
   const dataContext = useContext(DataContext);
   const { emit, error } = useSocket(
     chatWith === ChatTypes.application ?
       sioEvents.application_predict :
-      sioEvents.promptlib_predict,
+      sioEvents.chat_predict,
     handleSocketEvent
   ) 
-  
+   
   useEffect(() => {
     if (error) {
       toastError(error);
@@ -425,12 +424,11 @@ const ChatBox = forwardRef(({
   const onPredictStream = useCallback(async data => {
     setTimeout(scrollToMessageListEnd, 0);
 
-    const { /*modelSettings, */ socketConfig, sendMessage } = dataContext
+    const { socketConfig } = dataContext
 
     const selectedText = await sendMessage({
       type: VsCodeMessageTypes.getSelectedText
     });
-    console.log("TYPE == 0")
     const messages = []
     if (selectedText) {
       messages.push({
@@ -451,24 +449,18 @@ const ChatBox = forwardRef(({
         sentTo: participantRef.current ?? {}
       }]
     })
-    console.log("1")
     const projectId = socketConfig?.projectId
     if (!projectId) {
       toastError('Elitea Code extension Project ID setting is missing. Please set it to continue chat.');
       return
     }
       
-    console.log("2")
     if (error) {
       toastError(error);
       return;
     }
-   console.log("22", data)
+
     if (data.application_id) {
-      // if (!data.llm_settings?.integration_uid) {
-      //   toastError('Application chat model is missing. Please select another one for chat.');
-      //   return
-      // }
       const payload = generateApplicationStreamingPayload({
         ...data,
         ...data.llm_settings,
@@ -478,29 +470,10 @@ const ChatBox = forwardRef(({
         chatHistory,
         interaction_uuid
       })
-      console.log("23", payload)
       emit(payload)
       return
     
-    // } else if (data.datasource_id) {
-    //   if (!data.chat_settings_ai?.integration_uid ||
-    //     !data.chat_settings_embedding?.integration_uid) {
-    //     toastError('Datasource chat model and/or embedding setting is missing. Please select another one for chat.');
-    //     return
-    //   }
-    //   emit({
-    //     project_id: projectId,
-    //     version_id: data.currentVersionId || data.datasource_id,
-    //     input: question,
-    //     chat_history: chatHistory.filter(i => i.role !== MESSAGE_REFERENCE_ROLE).concat(messages),
-    //     context: data.context,
-    //     chat_settings_ai: data.chat_settings_ai,
-    //     chat_settings_embedding: data.chat_settings_embedding,
-    //     interaction_uuid
-    //   })
-    //   return
     } else {
-      console.log("3")
       const payloadData = {
         projectId,
         question,
@@ -509,39 +482,32 @@ const ChatBox = forwardRef(({
         messages,
         interaction_uuid
       }
-      // if (data.prompt_id && data.currentVersionId) {
-      //   payloadData.prompt_id = data.prompt_id
-      //   payloadData.currentVersionId = data.currentVersionId
-      //   payloadData.variables = data.variables
-      // } else {
-        if (modelSettings) {
-          console.log("44", modelSettings)
-          payloadData.llm_settings = modelSettings
-          console.log("444", payloadData)
-          payloadData.llm_settings = getDefaultModel(modelSettings.model, deployments)
-          payloadData.llm_settings.model_project_id = 1
-          payloadData.llm_settings.temperature = modelSettings.temperature
-          payloadData.llm_settings.top_p = modelSettings.top_p
-          payloadData.llm_settings.max_tokens = modelSettings.max_tokens
-          console.log("445", payloadData)
-         
-          if (!payloadData.llm_settings.model_name) {
-            toastError('Elitea Code extension model settings are missing.');
-            return
-          } else if (!payloadData.llm_settings.integration_uid) {
-            toastError('Elitea Code extension integration Uid is missing.');
-            return
-          }
-        } else {
+     
+      if (modelSettings) {
+
+        payloadData.llm_settings = modelSettings
+        payloadData.llm_settings = getDefaultModel(modelSettings.model, deployments)
+        payloadData.llm_settings.model_project_id = 1
+        payloadData.llm_settings.temperature = modelSettings.temperature
+        // payloadData.llm_settings.top_p = modelSettings.top_p
+        payloadData.llm_settings.max_tokens = modelSettings.max_tokens
+        if (!payloadData.llm_settings.model_name) {
           toastError('Elitea Code extension model settings are missing.');
           return
+        } else if (!payloadData.llm_settings.integration_uid) {
+          toastError('Elitea Code extension integration Uid is missing.');
+          return
         }
+      } else {
+        toastError('Elitea Code extension model settings are missing.');
+        return
+      }
       // }
       const payload = generateChatPayload(payloadData)
-      console.log("4", payload)
+      payload.conversation_uuid = conversationUuid
       emit(payload)
     }
-  },
+    },
     [scrollToMessageListEnd, dataContext, setChatHistory, emit, chatHistory, deployments, error, toastError, interaction_uuid])
 
   const onSend = useCallback(
@@ -558,7 +524,7 @@ const ChatBox = forwardRef(({
   const { emit: manualEmit } = useManualSocket(
     chatWith === ChatTypes.application ?
       sioEvents.application_leave_rooms :
-      sioEvents.promptlib_leave_rooms
+      sioEvents.chat_leave_rooms
   );
   const {
     isStreaming,

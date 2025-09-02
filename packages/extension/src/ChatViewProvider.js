@@ -78,6 +78,10 @@ class ChatViewProvider {
             this.getResponse(alitaService, 'getEmbeddings')
             break;
           }
+          case VsCodeMessageTypes.createConversation: {
+            this.getResponse(alitaService, 'createConversation', message.data)
+            break;
+          }
           case VsCodeMessageTypes.getApplicationDetail: {
             this.getResponse(alitaService, 'getApplicationDetail', message.data)
             break;
