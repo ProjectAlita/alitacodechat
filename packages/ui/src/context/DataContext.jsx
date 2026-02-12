@@ -19,7 +19,7 @@ const filterByCodeTag = (list) => {
 }
 
 const getIntegrationOptions = (integrations) => {
-  const result = integrations.shared.items.map((integration) => {
+  const result = integrations.map((integration) => {
     return {
       model_name: integration?.data?.name,
       integration_uid: integration?.uuid
@@ -129,9 +129,9 @@ export const DataProvider = ({ children }) => {
           setApplications(filterByCodeTag(message.data));
           break;
         case UiMessageTypes.createConversation:
-          setConversationUuid(message.data.uuid);  
+          setConversationUuid(message.data.uuid);
           break
-        case UiMessageTypes.getEmbeddings:         
+        case UiMessageTypes.getEmbeddings:
           setDeployments(getIntegrationOptions(message.data || []));
           break;
         case UiMessageTypes.settingsChanged:
@@ -192,7 +192,7 @@ export const DataProvider = ({ children }) => {
         if (import.meta.env.ALTERNATIVE_HOST) {
           // extract code string to send it as string parameter (not object)
           call.data?.code && (call.data = call.data.code)
-          
+
           const ideGetQuery = new URL(import.meta.env.ALTERNATIVE_HOST);
           ideGetQuery.search = new URLSearchParams(call).toString();
 
