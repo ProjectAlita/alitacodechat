@@ -19,7 +19,7 @@ const filterByCodeTag = (list) => {
 }
 
 const getIntegrationOptions = (integrations) => {
-  const result = integrations.map((integration) => {
+  const result = integrations.shared.items.map((integration) => {
     return {
       model_name: integration?.data?.name,
       integration_uid: integration?.uuid
@@ -101,7 +101,7 @@ export const DataProvider = ({ children }) => {
   useEffect(() => {
     const messageHandler = event => {
       const message = event.data;
-      console.log("message from vs code: ", message);
+      console.log("message from vs code: ", JSON.stringify(message));
       switch (message.type) {
         case UiMessageTypes.stopApplicationTask:
         case UiMessageTypes.stopDatasourceTask:
